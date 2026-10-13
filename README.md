@@ -80,36 +80,29 @@ DSH 里的模型要执行工作区外的操作（写文件、跑命令、改配�
 
 ## 安装
 
-本插件是一个 DSH **组合包**（bundle）：包里的 `cordis.patch.yml` 向 profile 贡献一个配置层，
-由 `dsh plugin` 安装并自动登记进 profile 的 `dsh.profile.bundles`。
-
-### 前置
-
-- 已安装 DSH 桌面版（`dsh` CLI 随桌面版一起提供）
-- 一个可用的模型（插件复用当前会话的模型路由，不额外配置）
-
-### 命令
+一条命令：
 
 ```bash
-dsh plugin --profile <profile> add <来源>
+dsh plugin --profile desktop add github:ArisuYuuko/dsh-approval-explainer
 ```
 
-`<profile>` 通常填 `desktop`。第一次对某个 profile 使用时会自动初始化它。
+`desktop` 是桌面版的 profile 名。第一次对某个 profile 使用时会自动初始化它。
 
-### 四种来源，任选一种
+装完**完全退出并重新打开 DSH**——刷新页面不够：宿主半区只在进程启动时加载。
 
-| 来源 | 命令 | 需要构建授权 | 需要 npm 账号 |
-|---|---|---|---|
-| **tarball** | `dsh plugin --profile desktop add ./dsh-approval-explainer-0.6.1.tgz` | 否 | 否 |
-| **本地克隆** | `dsh plugin --profile desktop add ./dsh-approval-explainer` | 否 | 否 |
-| **npm** | `dsh plugin --profile desktop add dsh-approval-explainer` | 否 | 发布时需要 |
-| **GitHub** | `dsh plugin --profile desktop add github:ArisuYuuko/dsh-approval-explainer` | 见下 | 否 |
+### 这条命令做了什么
 
-**tarball 与本地克隆这两种方式已实测通过**（流程与输出见下）。
-GitHub 与 npm 两种方式本插件应当同样可用，但**未经实测**，
-理由写在下文"关于安装方式的实测说明"里。
+本插件是一个 DSH **组合包**（bundle）：一个 npm 包，附带一份 `cordis.patch.yml`，
+描述它向 profile 贡献什么。`dsh plugin` 是 pnpm 的包装，它会：
 
-### 验证安装
+1. 把包装进 `<profile>/node_modules`
+2. 因为包声明了 `dsh.bundle`，把这个包名追加进 `dsh.profile.bundles`
+3. 于是生效配置多出一层，`cordis.patch.yml` 里的插件行被插入
+
+**不需要任何额外授权步骤。** 本插件是纯 JavaScript、没有构建步骤，
+因此 pnpm 不会要求你把它加进 `allowBuilds`（已实测，见下文）。
+
+### 验证
 
 ```bash
 dsh --profile desktop --dump-config
@@ -126,25 +119,11 @@ dsh --profile desktop --dump-config
     - approval
 ```
 
-再看 profile 的 `package.json`，`dsh.profile.bundles` 里应当多了本插件：
-
-```json
-{
-  "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "dsh-approval-explainer"] } }
-}
-```
-
-### 生效
-
-安装后**完全退出并重新打开 DSH**。刷新页面不够：宿主半区只在进程启动时加载。
-
-然后打开体检页确认：
+然后打开体检页，看到中文体检页即成功；404 说明插件没被加载：
 
 ```
 http://127.0.0.1:19387/dsh-approval/diag
 ```
-
-看到中文体检页即成功；404 说明插件没被加载。
 
 ### 卸载
 
@@ -152,54 +131,51 @@ http://127.0.0.1:19387/dsh-approval/diag
 dsh plugin --profile desktop remove dsh-approval-explainer
 ```
 
-这会同时移除依赖与对应的配置层。
+同时移除依赖与对应的配置层。
 
-### 关于安装方式的实测说明
+### 实测记录
 
-作者在**隔离的 `DSH_HOME`** 下真跑过安装（不动用户的真实 profile），实测结果：
+作者在**隔离的 `DSH_HOME`** 下真跑过上面那条命令（不动任何真实 profile）：
 
 ```
-$ dsh plugin --profile demo add ./dsh-approval-explainer
-+ dsh-approval-explainer link:.../dsh-approval-explainer
-Done in 459ms using pnpm v11.7.0
-dsh: initialized profile demo at .../profiles/demo
+$ dsh plugin --profile gh add github:ArisuYuuko/dsh-approval-explainer
++ dsh-approval-explainer github:ArisuYuuko/dsh-approval-explainer
+Packages: +1
+Done in 4.4s using pnpm v11.7.0
 
-$ dsh --profile demo --dump-config
+$ dsh --profile gh --dump-config
 # == dsh-approval-explainer
 - id: dsh-approval-explainer
   ...
 ```
 
+装完后 profile 的 `package.json`：
+
+```json
+{
+  "dependencies": { "dsh-approval-explainer": "github:ArisuYuuko/dsh-approval-explainer" },
+  "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "dsh-approval-explainer"] } }
+}
+```
+
+三处细节值得记录：
+
+- 装完的 `pnpm-workspace.yaml` 里**没有 `allowBuilds`** —— 确认没有要求人工授权
+- 安装下来的 7 个文件字节数与仓库内容逐一一致
+- **本地路径与 tarball 也走同一条命令**，开发时用它们可以免去推送再拉取的往返：
+
 ```bash
-$ dsh plugin --profile demotgz add ./dsh-approval-explainer-0.6.1.tgz
-+ dsh-approval-explainer file:.../dsh-approval-explainer-0.6.1.tgz
-Packages: +1
-Done in 365ms using pnpm v11.7.0
+dsh plugin --profile desktop add ./dsh-approval-explainer
 ```
 
-两种方式都正确生成了层与 `bundles` 条目。
+### 关于 git 安装的构建授权
 
-**GitHub 方式未能实测**：那需要在 `DSH_HOME` 隔离目录里执行 `git ls-remote`，
-而作者的运行环境禁止子进程通过管道取输出（`spawn EPERM`），与插件本身无关。
+DSH 官方文档[《打包与安装插件》](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.zh.md)
+指出：git 安装拉取的是**源码而非构建产物**，所以 TypeScript 之类的包需要作者提供
+`prepare` 脚本、并由用户把包名加进 profile 的 `allowBuilds` 授权。
 
-**关于 GitHub 安装的构建授权**：DSH 官方文档《打包与安装插件》指出，
-git 安装拉取的是**源码而非构建产物**，所以要作者提供 `prepare` 脚本、用户授权
-`allowBuilds`。**本插件的 `lib/` 就是分发产物（纯 JavaScript，没有构建步骤）**，
-因此既不需要 `prepare`，也不应当触发构建授权。若你在 GitHub 方式下遇到
-DSH 提示 `allowBuilds`，请开 issue 说明——那说明这个判断有误。
-
-**关于 npm 方式**：本插件未发布到 npm registry。上面的命令在发布后才可用。
-选择不发 npm 是为了让用户不必等发布、也不必给安装过程任何执行权限。
-
-### 验证
-
-打开：
-
-```
-http://127.0.0.1:19387/dsh-approval/diag
-```
-
-应该看到一个中文体检页，每项带图标、结论和"该做什么"。若看到 404，说明插件没被加载。
+本插件的 `lib/` 就是分发产物（纯 JavaScript，无构建步骤），因此不涉及这两步。
+若你在安装时看到 DSH 提示需要 `allowBuilds`，请开 issue —— 那说明这个判断有误。
 
 ---
 
