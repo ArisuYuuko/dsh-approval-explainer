@@ -1,0 +1,20 @@
+# ============================================================================
+# dsh-approval-explainer —— DSH bundle patch
+# ============================================================================
+# 一个包同时提供两侧：
+#   · 宿主半区  lib/index.js  —— 旁听 approval/request，生成 AI 注释并缓存
+#   · 浏览器半区 lib/client.js —— 占位 conversation.approval.detail 渲染注释
+#
+# 安装：
+#   dsh plugin --profile desktop add link:<本目录绝对路径>
+# 或把包名加进 profile 的 package.json dependencies 与 dsh.profile.bundles。
+#
+# inject 写在行上，是为了保证 llm / approval 两个服务都已就绪再 apply。
+# ============================================================================
+
+- insert:
+    - id: dsh-approval-explainer
+      name: dsh-approval-explainer
+      inject:
+        - llm
+        - approval

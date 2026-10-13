@@ -1,0 +1,49 @@
+{
+  "name": "dsh-approval-explainer",
+  "version": "0.6.1",
+  "description": "DSH 审批弹窗 AI 注释器：在模型请求权限外操作时，用模型自己的推理生成「这段代码做什么 / 想达成什么 / 风险评估 / 两个选项各自意味着什么」，让用户带着依据做决定，而不是瞪着一行代码点按钮。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "approval",
+    "escalation",
+    "explainability",
+    "ai-agent",
+    "human-in-the-loop"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArisuYuuko/dsh-approval-explainer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ArisuYuuko/dsh-approval-explainer/issues"
+  },
+  "homepage": "https://github.com/ArisuYuuko/dsh-approval-explainer#readme",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "license": "MIT"
+}

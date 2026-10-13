@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Editor and OS cruft
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Logs and local scratch
+*.log
+_out/
+
+# Local backups produced by editing scripts.
+# Never commit these: a stale copy next to the source is confusing, and a
+# backup accidentally shipped in the package is worse.
+*.bak
+*.bak-*
+*.orig
+*.rej
