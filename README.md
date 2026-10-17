@@ -260,6 +260,18 @@ Local paths and tarballs work through the same command, which is useful during d
 dsh plugin --profile desktop add ./dsh-approval-explainer
 ```
 
+### Host compatibility
+
+`package.json` declares the host range this plugin was built and tested against:
+
+```json
+"engines": { "dsh": ">=0.2.0-rc.1 <0.3.0-0" }
+```
+
+The market shows this on the card, so a host that falls outside the range is flagged before install rather than after. It is a statement about what has been tested, not a guarantee that nothing else works.
+
+Upgrading DSH is the one event most likely to break a plugin, because this plugin talks to host internals (`approval/request`, `ctx.llm.stream`, the `webServer` service, the `conversation.approval.detail` slot). After an upgrade, check `/dsh-approval/diag` first — it reports whether the host half loaded, whether the browser half entered the startup graph, and whether the profile config is intact.
+
 <a id="development"></a>
 
 ## Development

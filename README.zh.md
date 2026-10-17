@@ -254,6 +254,18 @@ DSH 官方文档《[打包与安装插件](https://github.com/deepseek-ai/deepse
 dsh plugin --profile desktop add ./dsh-approval-explainer
 ```
 
+### 宿主兼容性
+
+`package.json` 声明了本插件构建与测试时对照的宿主范围：
+
+```json
+"engines": { "dsh": ">=0.2.0-rc.1 <0.3.0-0" }
+```
+
+市场会在卡片上展示它，宿主版本落在范围外时能在**安装前**被标出来，而不是装完才发现。它表达的是"测过这条线"，不是"别的版本一定不行"。
+
+**升级 DSH 是最可能让插件失效的动作** —— 本插件依赖宿主内部接口（`approval/request` 事件、`ctx.llm.stream`、`webServer` 服务、`conversation.approval.detail` 座位）。升级后先看 `/dsh-approval/diag`：它会报告宿主半区有没有加载、浏览器半区有没有进启动图、profile 配置是否完整。
+
 <a id="development"></a>
 
 ## 开发
