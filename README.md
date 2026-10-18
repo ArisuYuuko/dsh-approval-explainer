@@ -154,13 +154,49 @@ lib/client.js  browser half (Web)
 
 **2. `apply()` must never throw.** Throwing marks the host fiber FAILED, the whole composition fails to mount, and the symptom is "DSH will not start after installing this". Every step in `apply()` is individually wrapped; any failure is recorded and execution continues.
 
+<a id="history"></a>
+
+## History
+
+Every real escalation is recorded so you can look back at it later:
+
+```
+http://127.0.0.1:<dsh-web-port>/dsh-approval/history
+```
+
+The plugin stores **only its own annotations** (`<profile>/data/dsh-approval-explainer/annotations.jsonl`). The **decision** — allowed / rejected / cancelled — is read from DSH's own session log, where it already lives as paired `approval/asked` + `approval/decided` events. The two are joined by `callId`.
+
+This split is deliberate: the host is the authority on who decided what, so duplicating it would only create a second version of the truth that drifts.
+
+| Query | Meaning |
+|---|---|
+| (none) | HTML page |
+| `?raw=1` | JSON |
+| `?q=` | Keyword: tool / path / annotation / reason |
+| `?decision=allow` | `allow` / `deny` / `cancel` / `pending` |
+| `?risk=high` | `low` / `medium` / `high` |
+| `?session=` | One session only |
+| `?since=` / `?until=` | ISO time range |
+| `?limit=` | Default 100, max 1000 |
+| `?refresh=1` | Bypass the revision cache |
+
+`POST /dsh-approval/history/clear` empties the annotation file. **It never touches DSH's session log.**
+
+If DSH doesn't expose `sessionPersistence` (older host), the page still opens and says so — annotations remain readable, only the decision column is unavailable.
+
+### Why the page has no framework
+
+The page is server-rendered with zero client dependencies. This is a **diagnostic page**: its whole reason to exist is to still open when something is broken, so it must be sturdier than the thing it diagnoses. It doesn't need the browser half, a fetch call, or React.
+
 <a id="diagnostics"></a>
 
 ## Diagnostics
 
 ```
-http://127.0.0.1:19387/dsh-approval/diag
+http://127.0.0.1:<dsh-web-port>/dsh-approval/diag
 ```
+
+`<dsh-web-port>` is the port the DSH web UI is currently serving on — it is chosen at runtime and changes across restarts, so don't hardcode it. Look at the URL of the DSH window itself.
 
 A check page. Each item carries a conclusion and an action; raw data is folded at the end. Three output formats:
 

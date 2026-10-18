@@ -148,13 +148,56 @@ lib/client.js  浏览器半区（Web）
 
 **2. `apply()` 永远不能抛。** 抛出会把宿主 fiber 打成 FAILED，整个组合装不上，表现是"重启后 DSH 起不来"。所以 `apply()` 里每一步都单独 try，任何失败只落盘、继续往下走。
 
+<a id="history"></a>
+
+## 历史授权
+
+每一次真实提权都会被记下来，事后可查：
+
+```
+http://127.0.0.1:<DSH Web 端口>/dsh-approval/history
+```
+
+插件**只存自己的注释**（`<profile>/data/dsh-approval-explainer/annotations.jsonl`）。
+**决策**——允许 / 拒绝 / 取消——从 DSH 自己的会话日志读，那里本来就有成对的
+`approval/asked` + `approval/decided` 事件。两者按 `callId` 关联。
+
+这样分工是刻意的：谁是权威？宿主才是"谁批准了什么"的权威。
+插件再存一份决策，只会制造第二个真相，而它迟早与宿主漂移。
+
+| 查询参数 | 含义 |
+|---|---|
+| （无） | HTML 页面 |
+| `?raw=1` | JSON |
+| `?q=` | 关键字：工具 / 路径 / 注释 / 申请理由 |
+| `?decision=allow` | `allow` / `deny` / `cancel` / `pending` |
+| `?risk=high` | `low` / `medium` / `high` |
+| `?session=` | 只查某个会话 |
+| `?since=` / `?until=` | ISO 时间范围 |
+| `?limit=` | 默认 100，上限 1000 |
+| `?refresh=1` | 绕过 revision 缓存 |
+
+`POST /dsh-approval/history/clear` 清空注释文件。**绝不碰 DSH 的会话日志。**
+
+若宿主没有提供 `sessionPersistence`（旧版本），页面照样打开并说明原因 ——
+注释仍可查看，只是决策列不可用。
+
+### 为什么这个页面不用前端框架
+
+服务端渲染、零客户端依赖。因为这是**诊断类页面**：它的存在意义就是
+"出问题时还能打开看看"，所以它必须比它诊断的东西更结实 ——
+不依赖浏览器半区、不发 fetch、不用 React。
+
 <a id="diagnostics"></a>
 
 ## 诊断
 
 ```
-http://127.0.0.1:19387/dsh-approval/diag
+http://127.0.0.1:<DSH Web 端口>/dsh-approval/diag
 ```
+
+`<DSH Web 端口>` 是 DSH Web 界面当前监听的端口。它由运行时选择、重启后会变，
+**不要写死**——直接看 DSH 窗口地址栏里的那个端口。
 
 一份体检页。每项检查带结论与操作建议，原始数据折叠在末尾。三种输出：
 
