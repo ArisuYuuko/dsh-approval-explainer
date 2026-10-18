@@ -209,6 +209,8 @@ http://127.0.0.1:<DSH Web 端口>/dsh-approval/diag
 
 宿主半区还会在 `/dsh-approval/view` 直接渲染注释列表，不经过浏览器半区——**即使浏览器半区出问题也能看注释**。
 
+**更快的入口：不用敲 URL（v0.8.0 新增）。** 浏览器半区在侧边栏底部注册了一个 🩺「插件体检」按钮（座位 `sidebar.footer.action`）。点开读 `/dsh-approval/diag?raw=1`，把同一份结论排成面板：结论胶囊、检查项、计数器、浏览器半区状态、崩溃与自愈证据、profile 状态、相关页面链接，以及可复制的原始 JSON。面板打开时每 10 秒自动刷新；`↻` 立刻重查，`↗` 打开上面那个完整页面。注意面板显示的是**运行中宿主半区**的版本号——升版后需要重启 DSH 才会变。
+
 ### 常见问题
 
 **弹窗里没有注释。** 先看 `/dsh-approval/client`。`registered: false` 说明浏览器半区没进启动图；三道门槛缺一不可——包在启动图里、`package.json` 声明 `dsh.client.platform === "web"`、导出 `"./client"`。

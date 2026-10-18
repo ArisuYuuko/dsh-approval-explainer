@@ -208,6 +208,8 @@ A check page. Each item carries a conclusion and an action; raw data is folded a
 
 The host also renders an annotation list at `/dsh-approval/view` without going through the browser half, so annotations remain inspectable even if the browser half misbehaves.
 
+**Faster entry — no URL to type (v0.8.0).** The browser half registers a 🩺 **Plugin check** button at the sidebar foot (slot `sidebar.footer.action`). It reads `/dsh-approval/diag?raw=1` and lays the same conclusions out in a panel: verdict pill, checks, counters, browser-half status, crash and self-heal evidence, profile state, related-page links, and the raw JSON with a copy button. The panel refreshes every 10 s while open; `↻` re-checks immediately and `↗` opens the full page above. The version it shows is the one the **running host half** reports, so after bumping the package you must restart DSH before that number changes.
+
 ### Common problems
 
 **No annotation in the prompt.** Check `/dsh-approval/client`. `registered: false` means the browser half never entered the startup graph; all three conditions must hold — the package is in the startup graph, `package.json` declares `dsh.client.platform === "web"`, and it exports `"./client"`.
