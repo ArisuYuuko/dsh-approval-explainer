@@ -158,6 +158,12 @@ lib/client.js  浏览器半区（Web）
 http://127.0.0.1:<DSH Web 端口>/dsh-approval/history
 ```
 
+**不用再记 URL（v0.9.0 新增）。** 浏览器半区在会话头部动作行——也就是「对话 / 轨迹」
+那一带的同一行（座位 `conversation.session.header.actions`）——加了一个「审批历史」按钮，
+点一下在新标签打开上面这个页面。路由是相对路径，DSH 换端口也照样能用；按钮以 `list`
+条目注册、带自己的 `id`、不写 `priority`，所以它只是排在共用这一行的其他插件
+（`agent-preset` / `job-list` / `schedule-catalog` / `agent-team`）旁边，不会顶掉任何一个。
+
 插件**只存自己的注释**（`<profile>/data/dsh-approval-explainer/annotations.jsonl`）。
 **决策**——允许 / 拒绝 / 取消——从 DSH 自己的会话日志读，那里本来就有成对的
 `approval/asked` + `approval/decided` 事件。两者按 `callId` 关联。

@@ -164,6 +164,8 @@ Every real escalation is recorded so you can look back at it later:
 http://127.0.0.1:<dsh-web-port>/dsh-approval/history
 ```
 
+**No URL to remember (v0.9.0).** The browser half adds an **Approval history** button to the Session header action row — the same row as the Conversation / Trajectory tabs (slot `conversation.session.header.actions`). Clicking it opens the page above in a new tab. The route is relative, so it keeps working when DSH picks a different port; the button is registered as a `list` entry with its own `id` and no `priority`, so it sits beside the other plugins that share that row (`agent-preset`, `job-list`, `schedule-catalog`, `agent-team`) without displacing any of them.
+
 The plugin stores **only its own annotations** (`<profile>/data/dsh-approval-explainer/annotations.jsonl`). The **decision** — allowed / rejected / cancelled — is read from DSH's own session log, where it already lives as paired `approval/asked` + `approval/decided` events. The two are joined by `callId`.
 
 This split is deliberate: the host is the authority on who decided what, so duplicating it would only create a second version of the truth that drifts.
