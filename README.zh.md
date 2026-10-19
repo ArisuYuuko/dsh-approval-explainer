@@ -164,12 +164,15 @@ http://127.0.0.1:<DSH Web 端口>/dsh-approval/history
 所以它只是排在共用这一行的其他插件（`agent-preset` / `job-list` /
 `schedule-catalog` / `agent-team`）旁边，不会顶掉任何一个。
 
-**要绝对 URL，不要相对路径（v0.9.1 修复）。** 桌面壳的页面跑在自定义协议
-`dsh-app://app/` 上，主进程只把 **http(s)** 目标交给系统浏览器，其余新窗口请求一律
-静默拒绝。所以相对路径 `/dsh-approval/history` 会变成
-`dsh-app://app/dsh-approval/history`，按钮点了没反应。现在会拼上渲染进程里本来就有的
-宿主 origin（`__DSH_TRANSPORT__.streamBaseUrl`），同一个点击打开的是
-`http://127.0.0.1:<端口>/dsh-approval/history`。
+**只在 DSH 内部打开，绝不弹系统浏览器（v0.9.1 → v0.9.2）。** 桌面壳的页面跑在
+自定义协议 `dsh-app://app/` 上，主进程只把 **http(s)** 目标交给系统浏览器，其余新窗口
+请求一律静默拒绝。所以相对路径 `/dsh-approval/history` 会变成
+`dsh-app://app/dsh-approval/history`，按钮点了没反应。拼上宿主 origin
+（`__DSH_TRANSPORT__.streamBaseUrl`）能修好点击，但那会把页面交给系统浏览器 ——
+这不是要的效果。现在按钮就地开在**应用内**：优先用内置的右侧浏览器标签
+（`sidebarRight.openTab('browser', { params: { url } })`，与 DSH 自己
+`linkOpening=sidebar` 时同一个 API），兜底则用当前协议做同窗口导航。
+`window.open` 与 `target="_blank"` 已从客户端半区移除。
 
 插件**只存自己的注释**（`<profile>/data/dsh-approval-explainer/annotations.jsonl`）。
 **决策**——允许 / 拒绝 / 取消——从 DSH 自己的会话日志读，那里本来就有成对的

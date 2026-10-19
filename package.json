@@ -1,6 +1,6 @@
 {
   "name": "dsh-approval-explainer",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "DSH 审批弹窗 AI 注释器：在模型请求权限外操作时，用模型自己的推理生成「这段代码做什么 / 想达成什么 / 风险评估 / 两个选项各自意味着什么」，让用户带着依据做决定，而不是瞪着一行代码点按钮。",
   "keywords": [
     "dsh",
