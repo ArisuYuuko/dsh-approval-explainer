@@ -164,14 +164,14 @@ http://127.0.0.1:<DSH Web 端口>/dsh-approval/history
 所以它只是排在共用这一行的其他插件（`agent-preset` / `job-list` /
 `schedule-catalog` / `agent-team`）旁边，不会顶掉任何一个。
 
-**只在 DSH 内部打开，绝不弹系统浏览器（v0.9.1 → v0.9.2）。** 桌面壳的页面跑在
-自定义协议 `dsh-app://app/` 上，主进程只把 **http(s)** 目标交给系统浏览器，其余新窗口
-请求一律静默拒绝。所以相对路径 `/dsh-approval/history` 会变成
-`dsh-app://app/dsh-approval/history`，按钮点了没反应。拼上宿主 origin
-（`__DSH_TRANSPORT__.streamBaseUrl`）能修好点击，但那会把页面交给系统浏览器 ——
-这不是要的效果。现在按钮就地开在**应用内**：优先用内置的右侧浏览器标签
-（`sidebarRight.openTab('browser', { params: { url } })`，与 DSH 自己
-`linkOpening=sidebar` 时同一个 API），兜底则用当前协议做同窗口导航。
+**在 DSH 里浮出面板（v0.9.3）。** 点按钮不再导航到任何地方：它拉取
+`/dsh-approval/history?raw=1&limit=200`，在对话上方浮出面板 —— 与插件的
+「插件体检」面板同一套交互。面板含头部（记录数、重新读取、关闭）、筛选
+（关键字 / 决策 / 风险，本地即时过滤）、每条审批一行可展开的摘要
+（时间、工具、风险与决策徽章、会话），底部「完整页面」兜底按钮也在 DSH 内打开。
+前面几版是硬碰出来的：桌面壳页面跑在 `dsh-app://app/` 上，主进程只把 **http(s)**
+目标交给系统浏览器，所以相对路径开新窗口会被静默拒绝（v0.9.0 就是"点了没反应"）；
+拼上宿主 origin 修好了点击，却把页面交给了系统浏览器（v0.9.1），这不是要的效果。
 `window.open` 与 `target="_blank"` 已从客户端半区移除。
 
 插件**只存自己的注释**（`<profile>/data/dsh-approval-explainer/annotations.jsonl`）。
